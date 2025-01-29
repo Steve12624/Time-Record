@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Time Record</title>
+    <style>
+        body {
+            font-family: Cambria, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 60%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: blue;
+        }
+        marquee {
+            font-size: 24px;
+            font-weight: bold;
+            color: rainbow;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+    <script>
+        const students = {
+            "2110500-0": "BRUA, JOEY ALAS",
+            "2110500-1": "GANDA, RODOLFO",
+            "2110500-2": "GAROTE, JUNRY",
+            "2110500-3": "IGNACIO, RODERICK",
+            "2110500-4": "IGNACIO, SANDY JR.",
+            "2110500-5": "PETALCORIN, JAKE GALO",
+            "2110500-6": "REYTAS, JOY ANN MEDIDAS",
+            "2110500-7": "ZAMORA, RONEIL"
+        };
+
+        let loggedInStudentID = null;
+        let totalHours = 0;
+
+        // Simulated sending to a number function (mock)
+        function sendDataToNumber(number, data) {
+            console.log(`Sending data to ${number}: ${JSON.stringify(data)}`);
+            alert(`Data sent to ${number}: ${JSON.stringify(data)}`);
+        }
+
+        function authenticate() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const studentID = document.getElementById("student-id").value;
+
+            if (username === "JARO25" && password === "2025" && students[studentID]) {
+                loggedInStudentID = studentID;
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("dtr-section").style.display = "block";
+                document.getElementById("student-id-display").textContent = studentID;
+                document.getElementById("student-name-display").textContent = students[studentID];
+            } else {
+                alert("Invalid credentials or student ID. Please try again.");
+            }
+        }
+
+        function recordTime(action) {
+            const now = new Date();
+            const day = now.toLocaleString('en-us', { weekday: 'long' });
+
+            if (day === "Saturday" || day === "Sunday") {
+                alert("Today is a weekend. No recording needed.");
+                return;
+            }
+
+            const dateInput = document.getElementById("date-input").value;
+            const timeInput = document.getElementById("time-input").value;
+            const hoursInput = document.getElementById("hours-input").value;
+            const signatureInput = document.getElementById("signature-input").value;
+            const phoneNumber = "09123456789"; // Placeholder phone number
+
+            const accountNumber = `ACC-${loggedInStudentID}-${dateInput.replaceAll("-", "")}`;
+            const numberInput = phoneNumber;
+
+            if (!dateInput || !timeInput || !hoursInput || !signatureInput) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const row = document.createElement("tr");
+
+            const cells = [
+                loggedInStudentID,
+                students[loggedInStudentID],
+                dateInput,
+                timeInput,
+                hoursInput,
+                signatureInput,
+                accountNumber,
+                numberInput
+            ];
+
+            cells.forEach(cellData => {
+                const cell = document.createElement("td");
+                cell.textContent = cellData;
+                row.appendChild(cell);
+            });
+
+            document.getElementById("time-records-table").appendChild(row);
+
+            totalHours += parseFloat(hoursInput);
+            document.getElementById("total-hours").textContent = `Total Hours: ${totalHours}`;
+
+            sendDataToNumber(numberInput, { studentID: loggedInStudentID, date: dateInput, hours: hoursInput, signature: signatureInput, accountNumber });
+
+            logout();
+        }
+
+        function logout() {
+            loggedInStudentID = null;
+            document.getElementById("login-section").style.display = "block";
+            document.getElementById("dtr-section").style.display = "none";
+            document.getElementById("student-id-display").textContent = "";
+            document.getElementById("student-name-display").textContent = "";
+            alert("You have been logged out.");
+        }
+    </script>
+</head>
+<body>
+    <marquee>VILLACONZOILO ORGANIC FARM DAILY TIME RECORD</marquee>
+    <div class="container">
+        <div id="login-section">
+            <h3>Login</h3>
+            <label>Access Username: <input type="text" id="username" placeholder="Enter Username"></label><br>
+            <label>Password: <input type="password" id="password" placeholder="Enter Password"></label><br>
+            <label>Student ID: <input type="text" id="student-id" placeholder="Enter Student ID"></label><br>
+            <button onclick="authenticate()">Login</button>
+        </div>
+
+        <div id="dtr-section" style="display: none;">
+            <h3>Record Time</h3>
+            <p id="student-id-display" style="font-weight: bold;"></p>
+            <p id="student-name-display" style="font-weight: bold;"></p>
+            <div class="grid">
+                <label>Date: <input type="date" id="date-input"></label>
+                <label>Time: <input type="time" id="time-input"></label>
+                <label>Hours: <input type="number" id="hours-input" placeholder="Enter hours worked"></label>
+                <label>Signature: <input type="text" id="signature-input" placeholder="Enter your signature"></label>
+            </div>
+            <button onclick="recordTime('Time In')">Time In</button>
+            <button onclick="recordTime('Time Out')">Time Out</button>
+            <h3>Records:</h3>
+            <table id="time-records-table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Hours Worked</th>
+                        <th>Signature</th>
+                        <th>Account Number</th>
+                        <th>Phone Number</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Time records will be appended here -->
+                </tbody>
+            </table>
+            <p id="total-hours">Total Hours: 0</p>
+        </div>
+    </div>
+</body>
+</html>
